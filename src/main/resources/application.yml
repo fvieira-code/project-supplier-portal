@@ -1,0 +1,40 @@
+spring:
+  profiles:
+    active: local
+  banner:
+    location: classpath:/abstract_banner.txt
+  datasource:
+    url: jdbc:mysql://localhost:3306/db-supplier-portal?useTimezone=true&serverTimezone=UTC
+    username: root
+    password: Lui$05012013
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    open-in-view: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  #flyway:
+    #enabled: true
+    #baseline-on-migrate: true
+    #schemas: db-supplier-portal
+  main:
+    allow-bean-definition-overriding: true
+springdoc:
+  api-docs:
+    enabled: true
+  #swagger-ui:
+    #filter: true
+    #tryItOutEnabled: true
+
+server:
+  servlet:
+    context-path: /project-supplier-portal
+  port: 8080
+
+# noinspection undefined
+project-java-backend:
+  openapi:
+    dev-url: http://localhost:8080/project-supplier-portal
+    #prod-url: https://project-java
+
