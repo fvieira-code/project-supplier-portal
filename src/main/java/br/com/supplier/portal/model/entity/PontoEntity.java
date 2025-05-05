@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.sql.Time;
 import java.time.Duration;
 import java.time.LocalDate;
 
@@ -30,13 +31,13 @@ public class PontoEntity {
     private String diaPonto;
 
     @Column(name = "inicio_ponto")
-    private Duration inicioPonto;
+    private Time inicioPonto;
 
     @Column(name = "final_ponto")
-    private Duration finalPonto;
+    private Time finalPonto;
 
     @Column(name = "total_hora_ponto")
-    private Duration totalHoraPonto;
+    private Time totalHoraPonto;
 
     @Column(name = "status_ponto")
     @Enumerated(EnumType.STRING)
@@ -59,5 +60,17 @@ public class PontoEntity {
     @JoinColumn(name = "id_atividade", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private AtividadeEntity atividade;
+
+    public PontoEntity(LocalDate dataPonto, String diaPonto,
+                       Time inicioPonto, Time finalPonto,
+                       Time totalHoraPonto, StatusPonto statusPonto, String ticketponto) {
+        this.dataPonto = dataPonto;
+        this.diaPonto = diaPonto;
+        this.inicioPonto = inicioPonto;
+        this.finalPonto = finalPonto;
+        this.totalHoraPonto = totalHoraPonto;
+        this.statusPonto = statusPonto;
+        this.ticketponto = ticketponto;
+    }
 
 }
