@@ -19,7 +19,7 @@ import java.util.Map;
 public class AtividadeServiceImpl implements AtividadeService {
 
     @Autowired
-    AtividadeRepository AtividadeRepository;
+    AtividadeRepository atividadeRepository;
 
     @Override
     public AtividadeEntity salvar(AtividadeEntity atividade) {
@@ -29,7 +29,7 @@ public class AtividadeServiceImpl implements AtividadeService {
                 atividade.getStatusAtividade()
         );
 
-        AtividadeRepository.save(atividade);
+        atividadeRepository.save(atividade);
         return AtividadeResponse;
     }
 
@@ -42,14 +42,9 @@ public class AtividadeServiceImpl implements AtividadeService {
                 .statusAtividade(atividade.getStatusAtividade())
                 .build();
 
-        AtividadeRepository.save(AtividadeResponse);
+        atividadeRepository.save(AtividadeResponse);
         return AtividadeResponse;
     }
-
-    /*public AtividadeEntity atualizar(AtividadeEntity atividade) {
-        AtividadeRepository.save(atividade);
-        return atividade;
-    }*/
 
     @Override
     public AtividadeEntity excluir(AtividadeEntity atividade) {
@@ -61,19 +56,19 @@ public class AtividadeServiceImpl implements AtividadeService {
                 .statusAtividade(StatusAtividade.INATIVO)
                 .build();
 
-        AtividadeRepository.save(AtividadeResponse);
+        atividadeRepository.save(AtividadeResponse);
         return AtividadeResponse;
     }
 
     @Override
     public List<AtividadeEntity> listar() {
-        return AtividadeRepository.findAll();
+        return atividadeRepository.findAll();
     }
 
     @Override
     public Page<AtividadeEntity> listar(Pageable atividade) {
-        Page<AtividadeEntity> AtividadeEntityPage = AtividadeRepository.findAll(atividade);
-        return AtividadeEntityPage;
+        Page<AtividadeEntity> atividadeEntityPage = atividadeRepository.findAll(atividade);
+        return atividadeEntityPage;
     }
 
 /*    @Override
@@ -95,7 +90,7 @@ public class AtividadeServiceImpl implements AtividadeService {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<AtividadeEntity> pageAtividades;
-        pageAtividades = AtividadeRepository.findAll(pageable);
+        pageAtividades = atividadeRepository.findAll(pageable);
 
         /*if (title == null)
             pageAtividadees = AtividadeRepository.findAll(pageable);
@@ -110,16 +105,31 @@ public class AtividadeServiceImpl implements AtividadeService {
         response.put("Total Atividadees: ", pageAtividades.getTotalElements());
         response.put("Total Pages: ", pageAtividades.getTotalPages());
 
-        //return new ResponseEntity<>(response, HttpStatus.OK);
         return response;
     }
 
     @Override
     public AtividadeEntity listarPorId(Integer id) {
-        return AtividadeRepository.findById(id).stream()
+        return atividadeRepository.findById(id).stream()
                 .filter(atividade -> atividade.getIdAtividade() != null)
                 .findFirst()
                 .get();
+    }
+
+    @Override
+    public List<AtividadeEntity> listarPorDescricao(String descricao) {
+        try {
+            List<AtividadeEntity> atividades = new ArrayList<AtividadeEntity>();
+
+            if (descricao == null)
+                atividadeRepository.findAll().forEach(atividades::add);
+            else
+                atividadeRepository.findByDescricaoAtividade(descricao).forEach(atividades::add);
+
+            return atividades;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

@@ -16,5 +16,6 @@ public interface AtividadeService {
     Page<AtividadeEntity> listar(Pageable atividade);
     Map<String, Object> listarAtividadesPage();
     AtividadeEntity listarPorId(Integer id);
+    List<AtividadeEntity> listarPorDescricao(String descricao);
 
 }

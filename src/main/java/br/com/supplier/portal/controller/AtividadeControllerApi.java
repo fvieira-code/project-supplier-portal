@@ -52,6 +52,24 @@ public interface AtividadeControllerApi {
     @GetMapping(value = "/atividades", produces = "application/json")
     public ResponseEntity<List<AtividadeEntity>> listar();
 
+    @Operation(description = "Endpoint responsável por listar os consultores sem paginação.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content =
+                    {@Content(schema = @Schema(implementation = AtividadeEntity.class), mediaType = "application/json") }),
+            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }) })
+    @GetMapping(value = "/atividades/descricao", produces = "application/json")
+    public ResponseEntity<List<AtividadeEntity>> listarPorDescricao(@RequestParam(required = false) String descricao);
+
+
+    @Operation(summary = "Endpoint responsável por excluir os atividades.", tags = {"atividade", "excluir"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {
+                    @Content(schema = @Schema(implementation = AtividadeEntity.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())}),
+            @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema())})})
+    @GetMapping("/atividades/{id}")
+    public ResponseEntity<AtividadeEntity> listarPorId(@PathVariable("id") Integer id);
+
     @Operation(description = "Endpoint responsável por listar os atividades com paginação.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", content =
