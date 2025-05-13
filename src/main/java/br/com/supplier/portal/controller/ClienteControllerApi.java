@@ -45,6 +45,15 @@ public interface ClienteControllerApi {
     @DeleteMapping("/clientes/{id}")
     public ResponseEntity<ClienteEntity> excluir(@PathVariable("id") Integer id, @RequestBody ClienteEntity cliente);
 
+    @Operation(summary = "Endpoint responsável por consultar o cliente por id.", tags = {"cliente", "consultar"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {
+                    @Content(schema = @Schema(implementation = ClienteEntity.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())}),
+            @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema())})})
+    @GetMapping("/clientes/{id}")
+    public ResponseEntity<ClienteEntity> listarPorId(@PathVariable("id") Integer id);
+
     @Operation(description = "Endpoint responsável por listar os clientes sem paginação.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", content =

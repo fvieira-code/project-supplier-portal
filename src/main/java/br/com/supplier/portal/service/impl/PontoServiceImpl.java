@@ -32,9 +32,10 @@ public class PontoServiceImpl implements PontoService {
                 ponto.getFinalPonto(),
                 ponto.getTotalHoraPonto(),
                 ponto.getStatusPonto(),
-                ponto.getTicketponto()
+                ponto.getTicketponto(),
+                ponto.getAtividadePonto()
         );
-        pontoResponse.setAtividade(ponto.getAtividade());
+        //pontoResponse.setAtividade(ponto.getAtividade());
         pontoResponse.setConsultor(ponto.getConsultor());
         pontoResponse.setCliente(ponto.getCliente());
         pontoRepository.save(ponto);
@@ -54,7 +55,7 @@ public class PontoServiceImpl implements PontoService {
                 .ticketponto(ponto.getTicketponto())
                 .consultor(ponto.getConsultor())
                 .cliente(ponto.getCliente())
-                .atividade(ponto.getAtividade())
+                //.atividade(ponto.getAtividade())
                 .build();
 
         pontoRepository.save(pontoResponse);

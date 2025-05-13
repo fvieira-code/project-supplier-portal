@@ -2,7 +2,6 @@ package br.com.supplier.portal.controller.impl;
 
 import br.com.supplier.portal.controller.PontoControllerApi;
 import br.com.supplier.portal.model.entity.PontoEntity;
-import br.com.supplier.portal.repository.PontoRepository;
 import br.com.supplier.portal.service.PontoService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +22,6 @@ public class PontoController implements PontoControllerApi {
 
     @Autowired
     private PontoService pontoService;
-
-    @Autowired
-    private PontoRepository pontoRepository;
 
     @Override
     public ResponseEntity<PontoEntity> salvar(@RequestBody PontoEntity ponto) {

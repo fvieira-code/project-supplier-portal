@@ -1,5 +1,6 @@
 package br.com.supplier.portal.controller;
 
+import br.com.supplier.portal.model.entity.ClienteEntity;
 import br.com.supplier.portal.model.entity.ConsultorEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -43,6 +44,15 @@ public interface ConsultorControllerApi {
             @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema())})})
     @DeleteMapping("/consultores/{id}")
     public ResponseEntity<ConsultorEntity> excluir(@PathVariable("id") Integer id, @RequestBody ConsultorEntity consultor);
+
+    @Operation(summary = "Endpoint responsável por consultar o consultor por id.", tags = {"consultor", "consultar"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {
+                    @Content(schema = @Schema(implementation = ConsultorEntity.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())}),
+            @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema())})})
+    @GetMapping("/consultores/{id}")
+    public ResponseEntity<ConsultorEntity> listarPorId(@PathVariable("id") Integer id);
 
     @Operation(description = "Endpoint responsável por listar os consultores sem paginação.")
     @ApiResponses({

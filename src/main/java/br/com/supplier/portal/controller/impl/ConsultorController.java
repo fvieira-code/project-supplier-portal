@@ -1,6 +1,7 @@
 package br.com.supplier.portal.controller.impl;
 
 import br.com.supplier.portal.controller.ConsultorControllerApi;
+import br.com.supplier.portal.model.entity.ClienteEntity;
 import br.com.supplier.portal.model.entity.ConsultorEntity;
 import br.com.supplier.portal.repository.ConsultorRepository;
 import br.com.supplier.portal.service.ConsultorService;
@@ -76,5 +77,16 @@ public class ConsultorController implements ConsultorControllerApi {
     public ResponseEntity<Map<String, Object>> listarConsultoresPage() {
 
         return new ResponseEntity<>(consultorService.listarConsultoresPage(), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<ConsultorEntity> listarPorId(@PathVariable("id") Integer id) {
+        var consultor = consultorService.listarPorId(id);
+
+        if (consultor != null) {
+            return new ResponseEntity<>(consultor, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 }

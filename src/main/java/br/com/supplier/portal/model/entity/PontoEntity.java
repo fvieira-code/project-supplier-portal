@@ -7,7 +7,6 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.sql.Time;
-import java.time.Duration;
 import java.time.LocalDate;
 
 @Entity
@@ -46,6 +45,9 @@ public class PontoEntity {
     @Column(name = "ticket_ponto")
     private String ticketponto;
 
+    @Column(name = "atividade_ponto")
+    private String atividadePonto;
+
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "id_consultor", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -56,14 +58,15 @@ public class PontoEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ClienteEntity cliente;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    /*@ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "id_atividade", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private AtividadeEntity atividade;
+    private AtividadeEntity atividade;*/
 
     public PontoEntity(LocalDate dataPonto, String diaPonto,
                        Time inicioPonto, Time finalPonto,
-                       Time totalHoraPonto, StatusPonto statusPonto, String ticketponto) {
+                       Time totalHoraPonto, StatusPonto statusPonto,
+                       String ticketponto, String atividadePonto) {
         this.dataPonto = dataPonto;
         this.diaPonto = diaPonto;
         this.inicioPonto = inicioPonto;
@@ -71,6 +74,7 @@ public class PontoEntity {
         this.totalHoraPonto = totalHoraPonto;
         this.statusPonto = statusPonto;
         this.ticketponto = ticketponto;
+        this.atividadePonto = atividadePonto;
     }
 
 }
