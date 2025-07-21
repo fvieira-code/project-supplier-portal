@@ -1,0 +1,6 @@
+# Variáveis sensíveis
+DB_URL=jdbc:mysql://localhost:3306/db-supplier-portal
+DB_USERNAME=root
+DB_PASSWORD=Lui$05012013
+JWT_SECRET=minhaChaveSecretaJwt123456
+JWT_EXPIRATION=86400000
