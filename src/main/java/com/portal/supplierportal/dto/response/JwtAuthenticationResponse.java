@@ -1,4 +1,4 @@
-package com.portal.supplierportal.dto;
+package com.portal.supplierportal.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SigninRequest {
-    private String email;
-    private String password;
+public class JwtAuthenticationResponse {
+    private String token;
 }

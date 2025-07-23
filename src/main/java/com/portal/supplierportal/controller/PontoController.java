@@ -3,9 +3,12 @@ package com.portal.supplierportal.controller;
 import com.portal.supplierportal.dto.PontoDTO;
 import com.portal.supplierportal.dto.RelatorioPontoDTO;
 import com.portal.supplierportal.service.PontoService;
+import com.portal.supplierportal.service.generator.ArquivoGerado;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -59,19 +62,23 @@ public class PontoController {
         return ResponseEntity.ok(pontoService.buscarPorFiltroComTotal(dataInicial, dataFinal, idConsultor, idCliente));
     }
 
-    @GetMapping("/filtro/excel")
-    public ResponseEntity<byte[]> gerarExcelPorFiltro(
+    @GetMapping("/gerar/excel")
+    public ResponseEntity<InputStreamResource> gerar(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicial,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFinal,
             @RequestParam(required = false) Integer idConsultor,
             @RequestParam(required = false) Integer idCliente
     ) throws IOException {
-        byte[] bytes = pontoService.gerarRelatorioExcel(dataInicial, dataFinal, idConsultor, idCliente);
+
+        ArquivoGerado arquivo = pontoService.gerarExcel(dataInicial, dataFinal, idConsultor, idCliente);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=" + arquivo.getNomeArquivo());
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=relatorio-pontos.xlsx")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(bytes);
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new InputStreamResource(arquivo.getConteudo()));
     }
 
 }

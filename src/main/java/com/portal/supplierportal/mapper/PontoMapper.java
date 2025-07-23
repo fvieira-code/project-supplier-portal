@@ -51,6 +51,9 @@ public class PontoMapper {
         return ConsultorDTO.builder()
                 .id(consultor.getId())
                 .nome(consultor.getNome())
+                .cpf(consultor.getCpf())
+                .rg(consultor.getRg())
+                .endereco(consultor.getEndereco())
                 .build();
     }
 
@@ -60,7 +63,9 @@ public class PontoMapper {
         return ClienteDTO.builder()
                 .id(cliente.getId())
                 .cnpj(cliente.getCnpj())
+                .razaoSocial(cliente.getRazaoSocial())
                 .nomeFantasia(cliente.getNomeFantasia())
+                .endereco(cliente.getEndereco())
                 .build();
     }
 }

@@ -3,20 +3,30 @@ package com.portal.supplierportal.service;
 import com.portal.supplierportal.dto.PontoDTO;
 import com.portal.supplierportal.dto.RelatorioPontoDTO;
 import com.portal.supplierportal.mapper.PontoMapper;
-import com.portal.supplierportal.repository.*;
-import com.portal.supplierportal.model.*;
+import com.portal.supplierportal.model.Cliente;
+import com.portal.supplierportal.model.Consultor;
+import com.portal.supplierportal.model.Ponto;
+import com.portal.supplierportal.repository.ClienteRepository;
+import com.portal.supplierportal.repository.ConsultorRepository;
+import com.portal.supplierportal.repository.PontoRepository;
+import com.portal.supplierportal.service.generator.ArquivoGerado;
+import com.portal.supplierportal.service.generator.PontoExcelGenerator;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +37,9 @@ public class PontoService {
     private final PontoRepository pontoRepository;
     private final ConsultorRepository consultorRepository;
     private final ClienteRepository clienteRepository;
+
+    @Autowired
+    public PontoExcelGenerator pontoExcelGenerator;
 
     public PontoDTO salvar(PontoDTO dto) {
         Consultor consultor = consultorRepository.findById(dto.getIdConsultor())
@@ -86,54 +99,21 @@ public class PontoService {
         return new RelatorioPontoDTO(dtos, totalHoras);
     }
 
-    public byte[] gerarRelatorioExcel(LocalDate dataInicial, LocalDate dataFinal,
-                                      Integer idConsultor, Integer idCliente) throws IOException {
+    public ArquivoGerado gerarExcel(LocalDate dataInicial, LocalDate dataFinal,
+                                    Integer idConsultor, Integer idCliente) throws IOException {
         var relatorio = buscarPorFiltroComTotal(dataInicial, dataFinal, idConsultor, idCliente);
 
-        try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Relatório de Pontos");
+        String dataAtual = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
+        String nomeArquivo = "relatorio-socioambiental-" + dataAtual + ".xlsx";
 
-            // Cabeçalho
-            Row header = sheet.createRow(0);
-            String[] colunas = {
-                    "ID", "Data", "Dia", "Início", "Fim", "Total", "Atividade", "Status",
-                    "Ticket", "Consultor", "Cliente"
-            };
-            for (int i = 0; i < colunas.length; i++) {
-                header.createCell(i).setCellValue(colunas[i]);
-            }
+        String userHome = System.getProperty("user.home");
+        Path downloadsPath = Paths.get(userHome, "Downloads");
+        Path caminhoFinal = downloadsPath.resolve(nomeArquivo);
 
-            // Dados
-            int rowIdx = 1;
-            for (PontoDTO dto : relatorio.getRegistros()) {
-                Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(dto.getId());
-                row.createCell(1).setCellValue(dto.getData().toString());
-                row.createCell(2).setCellValue(dto.getDia());
-                row.createCell(3).setCellValue(dto.getInicio() != null ? dto.getInicio().toString() : "");
-                row.createCell(4).setCellValue(dto.getFim() != null ? dto.getFim().toString() : "");
-                row.createCell(5).setCellValue(dto.getTotal() != null ? dto.getTotal().toString() : "");
-                row.createCell(6).setCellValue(dto.getAtividade());
-                row.createCell(7).setCellValue(dto.getStatus());
-                row.createCell(8).setCellValue(dto.getTicket());
-                row.createCell(9).setCellValue(dto.getIdConsultor().toString());
-                row.createCell(10).setCellValue(dto.getIdCliente().toString());
-            }
+        ByteArrayInputStream planilha = pontoExcelGenerator.gerar(relatorio);
+        Files.copy(planilha, caminhoFinal, StandardCopyOption.REPLACE_EXISTING);
 
-            // Total
-            Row totalRow = sheet.createRow(rowIdx + 1);
-            totalRow.createCell(0).setCellValue("Total de Horas:");
-            totalRow.createCell(1).setCellValue(relatorio.getTotalHoras());
-
-            // Auto size
-            for (int i = 0; i < colunas.length; i++) {
-                sheet.autoSizeColumn(i);
-            }
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            workbook.write(out);
-            return out.toByteArray();
-        }
+        return new ArquivoGerado(nomeArquivo, new ByteArrayInputStream(Files.readAllBytes(caminhoFinal)));
     }
 
 }

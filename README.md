@@ -11,6 +11,7 @@ filtros avançados e exportação de planilhas `.xlsx`. Desenvolvido com Java 17
 - Java 17
 - Spring Boot 3.x
 - Spring Data JPA
+- Spring Security
 - MySQL 8+
 - Lombok
 - Flyway
@@ -58,14 +59,20 @@ filtros avançados e exportação de planilhas `.xlsx`. Desenvolvido com Java 17
    - Pela IDE (classe `SupplierPortalApplication`)
    - Ou pelo terminal:
      ```bash
-     ./mvnw spring-boot:run
+     # Com Docker:
+     ./mvn spring-boot:run -Dspring.docker.compose.enabled=true
      ```
-
+     ```bash
+     # Sem Docker:
+     ./mvn spring-boot:run -Dspring-boot.run.profiles=local -Dspring.docker.compose.enabled=false
+      ```
+     
 5. O Flyway criará automaticamente as tabelas:
+   - `tb_user`
    - `tb_consultor`
    - `tb_cliente`
    - `tb_ponto`
-   - `tb_usuario`
+   
 
 ---
 
@@ -76,20 +83,41 @@ filtros avançados e exportação de planilhas `.xlsx`. Desenvolvido com Java 17
    - **Senha:** `admin`
 
 2. Obtenha o token JWT:
-   - `POST /auth/login`
+   # Cadastro:
+   - `POST /api/v1/auth/signup`
    ```json
    {
-     "username": "admin",
-     "password": "admin"
+    "firstName": "Admin",
+    "lastName": "Admin",
+    "email": "admin@rhtalentos.tec.br",
+    "password": "admin" 
    }
    ```
-
-3. O retorno será:
+   Retorno:   
    ```json
    { "token": "eyJhbGciOi..." }
    ```
+   
+   # Gerar Token:
+   - `POST /api/v1/auth/signin`
+   ```json
+   {
+    "email": "admin@rhtalentos.tec.br",
+    "password": "admin" 
+   }
+   ```
+   Retorno:
+   ```json
+   { "token": "eyJhbGciOi..." }
+   ```  
 
-4. Use o token em chamadas protegidas:
+   # Validar o Token:
+   - `GET /api/v1/resource`
+   ```header:
+         Authorization: Bearer [token gerado no enpoint /api/v1/auth/signin
+   ```
+
+3. Use o token em chamadas protegidas:
    - Header:  
      `Authorization: Bearer eyJhbGciOi...`
 
@@ -100,11 +128,11 @@ filtros avançados e exportação de planilhas `.xlsx`. Desenvolvido com Java 17
 1. Acesse: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 2. Clique em `Authorize` e cole o token JWT.
 3. Teste os endpoints:
-   - `/api/consultores`
-   - `/api/clientes`
-   - `/api/pontos`
-   - `/api/pontos/filtro`
-   - `/api/pontos/filtro/excel`
+   - `/api/v1/consultores`
+   - `/api/v1/clientes`
+   - `/api/v1/pontos`
+   - `/api/v1/pontos/filtro`
+   - `/api/v1/pontos/filtro/excel`
 
 ---
 
@@ -112,15 +140,31 @@ filtros avançados e exportação de planilhas `.xlsx`. Desenvolvido com Java 17
 
 1. Requisição de login:
 
-   **POST** `http://localhost:8080/auth/login`
-   ```json
-   {
-     "username": "admin",
-     "password": "admin"
-   }
-   ```
+   **POST** `http://localhost:8080/api/v1/auth/signup`
+   - cURL:
+        curl --location 'http://localhost:8080/api/v1/auth/signup' \
+        --header 'Content-Type: application/json' \
+        --header 'Cookie: JSESSIONID=3D837A1374CB577B65FC623AB4B25030' \
+        --data-raw '{
+        "firstName": "Admin",
+        "lastName": "Admin",
+        "email": "admin@rhtalentos.tec.br",
+        "password": "admin"   
+        }'
 
-2. Use o token retornado em outras requisições com Header:
+2. Requisição de Token:
+
+   **POST** `http://localhost:8080/api/v1/auth/signin`
+   - cURL:
+        curl --location 'http://localhost:8080/api/v1/auth/signin' \
+        --header 'Content-Type: application/json' \
+        --header 'Cookie: JSESSIONID=3D837A1374CB577B65FC623AB4B25030' \
+        --data-raw '{
+        "email": "admin@rhtalentos.tec.br",
+        "password": "admin"   
+        }'
+
+3. Use o token retornado em outras requisições com Header:
 
    ```
    Authorization: Bearer <token>
@@ -128,7 +172,7 @@ filtros avançados e exportação de planilhas `.xlsx`. Desenvolvido com Java 17
 
 3. Exemplo de filtro de pontos:
 
-   **GET** `http://localhost:8080/api/pontos/filtro?dataInicial=2024-01-01&dataFinal=2024-12-31`
+   **GET** `http://localhost:8080/api/v1/pontos/filtro?dataInicial=2025-07-01&dataFinal=2025-07-31`
 
 ---
 
@@ -140,7 +184,7 @@ filtros avançados e exportação de planilhas `.xlsx`. Desenvolvido com Java 17
 docker-compose up --build -d
 ```
 
-- Acesse [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- Acesse [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 - O app se conecta ao banco externo via `host.docker.internal`
 
 ---
@@ -152,12 +196,14 @@ com.portal.supplierportal
 ├── config           → configurações Swagger, segurança
 ├── controller       → REST controllers
 ├── dto              → Data Transfer Objects
+|+++++ request
+|+++++ response
 ├── exception        → tratadores globais
 ├── mapper           → conversores entre DTO e entidade
 ├── model            → entidades JPA
 ├── repository       → repositórios Spring Data
-├── security         → JWT e filtros de autenticação
 ├── service          → regras de negócio
+|+++++ impl
 └── SupplierPortalApplication.java
 ```
 
@@ -166,28 +212,32 @@ com.portal.supplierportal
 ## 📑 Endpoints principais
 
 ### 🔐 Autenticação
-- `POST /auth/login`
+- `POST api/v1/auth/signup`
+- `POST api/v1/auth/signin`
 
 ### 👤 Consultores
-- `GET /api/consultores`
-- `POST /api/consultores`
-- `PUT /api/consultores/{id}`
-- `DELETE /api/consultores/{id}`
-- `GET /api/consultores/cpf/{cpf}`
+- `GET /api/v1/consultores`
+- `POST /api/v1/consultores`
+- `PUT /api/v1/consultores/{id}`
+- `DELETE /api/v1/consultores/{id}`
+- `GET /api/v1/consultores/cpf/{cpf}`
 
 ### 🏢 Clientes
-- `GET /api/clientes`
-- `POST /api/clientes`
-- `GET /api/clientes/cnpj/{cnpj}`
+- `GET /api/v1/clientes`
+- `POST /api/v1/clientes`
+- `GET /api/v1/clientes/cnpj/{cnpj}`
 
 ### ⏱ Pontos
-- `GET /api/pontos`
-- `POST /api/pontos`
-- `GET /api/pontos/filtro?dataInicial=...&dataFinal=...`
-- `GET /api/pontos/filtro/excel` → gera planilha `.xlsx`
+- `GET /api/v1/pontos`
+- `POST /api/v1/pontos`
+- `GET /api/v1/pontos`
+- `GET /api/v1/pontos/pagina`
+- `GET /api/v1/pontos/filtro?dataInicial=...&dataFinal=...`
+- `GET /api/v1/pontos/filtro/excel` → gera planilha `.xlsx`
+- `GET /api/v1/pontos/gerar/excel` → gera planilha `.xlsx`
 
 ---
 
 ## 📄 Licença
 
-Distribuído para fins comerciais. Abstract Tech.
+Distribuído para fins comerciais. Company: Abstract Tech.
