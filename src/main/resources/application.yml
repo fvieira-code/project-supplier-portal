@@ -19,7 +19,6 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        # Format queries
       format_sql: true
     open-in-view: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
@@ -36,9 +35,13 @@ server:
   port: 8080
 springdoc:
   api-docs:
+    enabled: true
     path: /api-docs
   swagger-ui:
+    enabled: true
     path: /swagger-ui.html
+  use-management-port: false
+
 token:
   signing:
     key: 413F4428472B4B6250655368566D5970337336763979244226452948404D6351
