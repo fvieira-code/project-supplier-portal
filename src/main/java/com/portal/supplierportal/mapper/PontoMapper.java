@@ -1,11 +1,15 @@
 package com.portal.supplierportal.mapper;
 
+import com.portal.supplierportal.dto.ClienteDTO;
+import com.portal.supplierportal.dto.ConsultorDTO;
 import com.portal.supplierportal.dto.PontoDTO;
 import com.portal.supplierportal.model.*;
 
 public class PontoMapper {
 
     public static PontoDTO toDTO(Ponto entity) {
+        if (entity == null) return null;
+
         return PontoDTO.builder()
                 .id(entity.getId())
                 .atividade(entity.getAtividade())
@@ -16,12 +20,16 @@ public class PontoMapper {
                 .total(entity.getTotal())
                 .status(entity.getStatus())
                 .ticket(entity.getTicket())
-                .idConsultor(entity.getConsultor().getId())
-                .idCliente(entity.getCliente().getId())
+                .idConsultor(entity.getConsultor() != null ? entity.getConsultor().getId() : null)
+                .idCliente(entity.getCliente() != null ? entity.getCliente().getId() : null)
+                .consultor(toConsultorDTO(entity.getConsultor()))
+                .cliente(toClienteDTO(entity.getCliente()))
                 .build();
     }
 
     public static Ponto toEntity(PontoDTO dto, Consultor consultor, Cliente cliente) {
+        if (dto == null) return null;
+
         return Ponto.builder()
                 .id(dto.getId())
                 .atividade(dto.getAtividade())
@@ -36,4 +44,24 @@ public class PontoMapper {
                 .cliente(cliente)
                 .build();
     }
+
+    private static ConsultorDTO toConsultorDTO(Consultor consultor) {
+        if (consultor == null) return null;
+
+        return ConsultorDTO.builder()
+                .id(consultor.getId())
+                .nome(consultor.getNome())
+                .build();
+    }
+
+    private static ClienteDTO toClienteDTO(Cliente cliente) {
+        if (cliente == null) return null;
+
+        return ClienteDTO.builder()
+                .id(cliente.getId())
+                .cnpj(cliente.getCnpj())
+                .nomeFantasia(cliente.getNomeFantasia())
+                .build();
+    }
 }
+

@@ -38,4 +38,7 @@ public class PontoDTO {
 
     @NotNull
     private Integer idCliente;
+
+    private ConsultorDTO consultor;
+    private ClienteDTO cliente;
 }
