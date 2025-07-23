@@ -30,12 +30,4 @@ public class OpenApiConfig {
                                         .bearerFormat("JWT")));
     }
 
-    /*@Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Supplier Portal API")
-                        .version("1.0.0")
-                        .description("Documentação da API Supplier Portal"));
-    }*/
 }
