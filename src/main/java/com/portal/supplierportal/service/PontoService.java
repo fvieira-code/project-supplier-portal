@@ -5,18 +5,29 @@ import com.portal.supplierportal.dto.RelatorioPontoDTO;
 import com.portal.supplierportal.mapper.PontoMapper;
 import com.portal.supplierportal.repository.*;
 import com.portal.supplierportal.model.*;
+import com.portal.supplierportal.service.generator.ArquivoGerado;
+import com.portal.supplierportal.service.generator.ExcelGenerator;
+import com.portal.supplierportal.service.generator.PontoExcelGenerator;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -135,5 +146,55 @@ public class PontoService {
             return out.toByteArray();
         }
     }
+
+    @Autowired
+    public ExcelGenerator excelGenerator;
+    public ArquivoGerado gerarExcel(LocalDate dataInicial, LocalDate dataFinal,
+                                    Integer idConsultor, Integer idCliente) throws IOException {
+        var relatorio = buscarPorFiltroComTotal(dataInicial, dataFinal, idConsultor, idCliente);
+
+        String dataAtual = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
+        String nomeArquivo = "relatorio-socioambiental-" + dataAtual + ".xlsx";
+
+        String userHome = System.getProperty("user.home");
+        Path downloadsPath = Paths.get(userHome, "Downloads");
+        Path caminhoFinal = downloadsPath.resolve(nomeArquivo);
+
+        ByteArrayInputStream planilha = pontoExcelGenerator.gerar(relatorio);
+        Files.copy(planilha, caminhoFinal, StandardCopyOption.REPLACE_EXISTING);
+
+        return new ArquivoGerado(nomeArquivo, new ByteArrayInputStream(Files.readAllBytes(caminhoFinal)));
+    }
+
+
+    @Autowired
+    public PontoExcelGenerator pontoExcelGenerator;
+
+    public ByteArrayInputStream gerar(LocalDate dataInicial, LocalDate dataFinal,
+                                      Integer idConsultor, Integer idCliente) throws IOException {
+
+        var relatorio = buscarPorFiltroComTotal(dataInicial, dataFinal, idConsultor, idCliente);
+
+        // Gera o conteúdo da planilha
+        ByteArrayInputStream planilhaInputStream = pontoExcelGenerator.gerar(relatorio);
+
+        // Caminho para a pasta Downloads do usuário
+        String userHome = System.getProperty("user.home");
+        Path downloadsPath = Paths.get(userHome, "Downloads");
+
+        // Nome do arquivo com data/hora
+        String dataAtual = new SimpleDateFormat("yyyy-MM-dd_HHmmss").format(new Date());
+        String nomeArquivo = "relatorio-socioambiental-" + dataAtual + ".xlsx";
+
+        // Caminho completo do arquivo
+        Path caminhoFinal = downloadsPath.resolve(nomeArquivo);
+
+        // Escreve o InputStream no arquivo físico
+        Files.copy(planilhaInputStream, caminhoFinal, StandardCopyOption.REPLACE_EXISTING);
+
+        // Retorna um novo InputStream (pois o anterior foi consumido)
+        return new ByteArrayInputStream(Files.readAllBytes(caminhoFinal));
+    }
+
 
 }

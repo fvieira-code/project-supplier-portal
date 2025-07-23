@@ -1,9 +1,9 @@
 package com.portal.supplierportal.service.impl;
 
 
-import com.portal.supplierportal.dto.JwtAuthenticationResponse;
-import com.portal.supplierportal.dto.SignUpRequest;
-import com.portal.supplierportal.dto.SigninRequest;
+import com.portal.supplierportal.dto.response.JwtAuthenticationResponse;
+import com.portal.supplierportal.dto.request.SignUpRequest;
+import com.portal.supplierportal.dto.request.SigninRequest;
 import com.portal.supplierportal.model.Role;
 import com.portal.supplierportal.model.User;
 import com.portal.supplierportal.repository.UserRepository;

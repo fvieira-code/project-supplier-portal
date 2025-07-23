@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/resource")
 @RequiredArgsConstructor
 public class AuthorizationController {
+
     @GetMapping
     public ResponseEntity<String> sayHello() {
-        return ResponseEntity.ok("Here is your resource");
+        return ResponseEntity.ok("Token válido.");
     }
 }

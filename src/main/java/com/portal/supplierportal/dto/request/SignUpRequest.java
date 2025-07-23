@@ -1,4 +1,4 @@
-package com.portal.supplierportal.dto;
+package com.portal.supplierportal.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
