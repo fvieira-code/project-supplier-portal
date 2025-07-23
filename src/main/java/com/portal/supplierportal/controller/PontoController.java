@@ -17,7 +17,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/pontos")
+@RequestMapping("/api/v1/pontos")
 @RequiredArgsConstructor
 public class PontoController {
 

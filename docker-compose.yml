@@ -1,6 +1,14 @@
 version: "3.8"
 
 services:
+  backend:
+    image: myapp:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    profiles:
+      - docker
   app:
     container_name: supplier-portal-app
     build:
