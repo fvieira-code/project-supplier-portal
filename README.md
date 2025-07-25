@@ -164,13 +164,31 @@ filtros avançados e exportação de planilhas `.xlsx`. Desenvolvido com Java 17
         "password": "admin"   
         }'
 
-3. Use o token retornado em outras requisições com Header:
+3. Listar todos os users ou por nome :
+   **GET**
+    - http://localhost:8080/api/v1/auth/users
+   - http://localhost:8080/api/v1/auth/users?nome=admin
+
+4. Alterar o user:
+   **PUT**
+   - cURL:
+         curl --location --request PUT 'http://localhost:8080/api/v1/auth/update' \
+         --header 'Content-Type: application/json' \
+         --data-raw '    {
+         "id": 1,
+         "firstName": "Admin",
+         "lastName": "Administrator",
+         "email": "admin@rhtalentos.tec.br",
+         "password": "$2a$10$J7riw3vmIJDqPzVylot0Nepz2xajhd.yxWgKRnEHklmYVKWgl.xey",
+         "role": "USER"
+         }'
+5. Use o token retornado em outras requisições com Header:
 
    ```
    Authorization: Bearer <token>
    ```
 
-3. Exemplo de filtro de pontos:
+6. Exemplo de filtro de pontos:
 
    **GET** `http://localhost:8080/api/v1/pontos/filtro?dataInicial=2025-07-01&dataFinal=2025-07-31`
 
@@ -214,6 +232,8 @@ com.portal.supplierportal
 ### 🔐 Autenticação
 - `POST api/v1/auth/signup`
 - `POST api/v1/auth/signin`
+- `GET api/v1/auth/users`
+- `PUT api/v1/auth/update`
 
 ### 👤 Consultores
 - `GET /api/v1/consultores`
