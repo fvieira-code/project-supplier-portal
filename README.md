@@ -241,6 +241,7 @@ com.portal.supplierportal
 - `PUT /api/v1/consultores/{id}`
 - `DELETE /api/v1/consultores/{id}`
 - `GET /api/v1/consultores/cpf/{cpf}`
+- `GET /api/v1/token/expiration`
 
 ### 🏢 Clientes
 - `GET /api/v1/clientes`
