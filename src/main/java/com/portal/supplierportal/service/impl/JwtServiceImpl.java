@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,8 +19,12 @@ import java.util.function.Function;
 
 @Service
 public class JwtServiceImpl implements JwtService {
+
     @Value("${token.signing.key}")
     private String jwtSigningKey;
+
+    @Value("${token.expiration.minutes}")
+    private long expirationMinutes;
 
     @Override
     public String extractUserName(String token) {
@@ -43,18 +48,31 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return Jwts.builder().setClaims(extraClaims).setSubject(userDetails.getUsername())
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
+                .setExpiration(new Date(System.currentTimeMillis() + Duration.ofMinutes(expirationMinutes).toMillis()))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    private Date extractExpiration(String token) {
+/*    private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
+    }*/
+
+    @Override
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    @Override
+    public Date getExpiration(String token) {
+        return extractExpiration(token);
     }
 
     private Claims extractAllClaims(String token) {
