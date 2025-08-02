@@ -14,4 +14,5 @@ public interface JwtService {
     Date extractExpiration(String token);
 
     Date getExpiration(String token);
+
 }
