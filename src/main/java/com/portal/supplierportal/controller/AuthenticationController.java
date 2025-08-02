@@ -1,15 +1,18 @@
 package com.portal.supplierportal.controller;
 
 import com.portal.supplierportal.dto.UserDTO;
-import com.portal.supplierportal.dto.response.JwtAuthenticationResponse;
 import com.portal.supplierportal.dto.request.SignUpRequest;
 import com.portal.supplierportal.dto.request.SigninRequest;
+import com.portal.supplierportal.dto.response.JwtAuthenticationResponse;
 import com.portal.supplierportal.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -39,5 +42,25 @@ public class AuthenticationController {
             return ResponseEntity.ok(authenticationService.buscarPorNome(nome));
         }
         return ResponseEntity.ok(authenticationService.buscarTodos());
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserDTO> buscarPorId(@PathVariable Integer id) {
+        return ResponseEntity.ok(authenticationService.buscarPorId(id));
+    }
+
+    @GetMapping("/inToken")
+    public ResponseEntity<UserDTO> getUsuarioLogado(@RequestHeader("Authorization") String token) {
+        return ResponseEntity.ok(authenticationService.getUsuarioLogado(token));
+    }
+
+    @GetMapping("/inDetails")
+    public ResponseEntity<UserDTO> getUsuarioLogado(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(authenticationService.buscarEntidadePorEmail(userDetails.getUsername()));
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<Map<String, Object>> refreshToken(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(authenticationService.refreshToken(userDetails));
     }
 }

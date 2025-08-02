@@ -234,6 +234,10 @@ com.portal.supplierportal
 - `POST api/v1/auth/signin`
 - `GET api/v1/auth/users`
 - `PUT api/v1/auth/update`
+- `GET api/v1/auth/users/{id}`
+- `GET api/v1/auth/inToken`
+- `GET api/v1/auth/inDetails`
+- `POST /api/v1/auth/refresh-token`
 
 ### 👤 Consultores
 - `GET /api/v1/consultores`
@@ -242,6 +246,9 @@ com.portal.supplierportal
 - `DELETE /api/v1/consultores/{id}`
 - `GET /api/v1/consultores/cpf/{cpf}`
 - `GET /api/v1/token/expiration`
+  curl --location --request POST 'http://localhost:8080/api/v1/auth/refresh-token' \
+  --header 'Authorization: Bearer SEU_TOKEN_JWT_AQUI'
+  🔁 Substitua SEU_TOKEN_JWT_AQUI pelo seu token válido de autenticação.
 
 ### 🏢 Clientes
 - `GET /api/v1/clientes`

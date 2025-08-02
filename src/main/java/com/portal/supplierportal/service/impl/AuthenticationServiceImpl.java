@@ -2,10 +2,11 @@ package com.portal.supplierportal.service.impl;
 
 
 import com.portal.supplierportal.dto.UserDTO;
-import com.portal.supplierportal.dto.response.JwtAuthenticationResponse;
 import com.portal.supplierportal.dto.request.SignUpRequest;
 import com.portal.supplierportal.dto.request.SigninRequest;
+import com.portal.supplierportal.dto.response.JwtAuthenticationResponse;
 import com.portal.supplierportal.exception.RecursoNaoEncontradoException;
+import com.portal.supplierportal.mapper.UserMapper;
 import com.portal.supplierportal.model.Role;
 import com.portal.supplierportal.model.User;
 import com.portal.supplierportal.repository.UserRepository;
@@ -14,19 +15,31 @@ import com.portal.supplierportal.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserMapper userMapper;
+
     @Override
     public JwtAuthenticationResponse signup(SignUpRequest request) {
         var user = User.builder().firstName(request.getFirstName()).lastName(request.getLastName())
@@ -76,4 +89,48 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .map(u -> new UserDTO(u.getId(), u.getFirstName(), u.getLastName(), u.getEmail(), u.getPassword(), u.getRole()))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public UserDTO buscarPorId(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
+        return userMapper.toDTO(user);
+    }
+
+    @Override
+    public UserDTO getUsuarioLogado(String token) {
+        String jwt = token.replace("Bearer ", "");
+        String email = jwtService.extractUserName(jwt); /* Método para extrair email/username do token */
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com e-mail: " + email));
+
+        return userMapper.toDTO(user);
+    }
+
+    @Override
+    public UserDTO buscarEntidadePorEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com e-mail: " + email));
+
+        return userMapper.toDTO(user);
+    }
+
+    @Override
+    public Map<String, Object> refreshToken(UserDetails userDetails) {
+
+        String novoToken = jwtService.generateToken(userDetails);
+        Date expiration = jwtService.getExpiration(novoToken);
+
+        Instant expirationInstant = expiration.toInstant();
+        ZonedDateTime expirationBrasilia = expirationInstant.atZone(ZoneId.of("America/Sao_Paulo"));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", novoToken);
+        response.put("expiresInMinutes", Duration.between(Instant.now(), expirationInstant).toMinutes());
+        response.put("expiration", expirationBrasilia);
+
+        return response;
+    }
+
 }
